@@ -1,0 +1,264 @@
+# 📱 PHONE-ONLY DEPLOYMENT GUIDE
+# Lumuli Andrew Personal Website
+# Upstash Redis + Resend + GitHub + Vercel
+
+========================================
+STEP 1: CREATE A GITHUB REPO (Phone)
+========================================
+
+1. Open Chrome/Safari on your phone
+2. Go to github.com and sign in (or create account)
+3. Tap the + icon (top right) → "New repository"
+4. Name it: lumuli-andrew-website
+5. Make it PUBLIC (easier for Vercel)
+6. DO NOT check "Add README" or ".gitignore"
+7. Tap "Create repository"
+
+You now have an empty repo.
+
+========================================
+STEP 2: UPLOAD ALL FILES (Phone)
+========================================
+
+METHOD A: GitHub Mobile App (Easiest)
+-------------------------------------
+1. Install "GitHub" app from Play Store/App Store
+2. Open your repo: lumuli-andrew-website
+3. Tap the + button → "Create new file"
+4. For EACH file below, create it with exact path:
+
+   Files to create (copy-paste content from the code files):
+
+   Root level files:
+   - package.json
+   - next.config.js
+   - tailwind.config.js
+   - tsconfig.json
+   - postcss.config.js
+   - .gitignore
+
+   src/app/ files:
+   - src/app/layout.tsx
+   - src/app/page.tsx
+   - src/app/globals.css
+   - src/app/admin/page.tsx
+
+   src/app/api/contact/:
+   - src/app/api/contact/route.ts
+
+   src/app/api/admin/verify/:
+   - src/app/api/admin/verify/route.ts
+
+   src/app/api/content/:
+   - src/app/api/content/route.ts
+
+   src/lib/:
+   - src/lib/kv.ts
+
+   To create folders: type the full path like "src/app/page.tsx"
+   GitHub will auto-create the folders.
+
+METHOD B: GitHub Website (Alternative)
+--------------------------------------
+1. Go to your repo on github.com
+2. Click "Add file" → "Create new file"
+3. Type the full path (e.g., "src/app/page.tsx")
+4. Paste the code content
+5. Scroll down, type commit message: "Add [filename]"
+6. Click "Commit new file"
+7. Repeat for ALL files
+
+IMPORTANT: Make sure folder paths are EXACT:
+- src/app/page.tsx  (NOT src\app\page.tsx)
+- src/app/api/contact/route.ts
+- src/lib/kv.ts
+
+========================================
+STEP 3: SET UP UPSTASH REDIS (Phone)
+========================================
+
+1. Open console.upstash.com in your phone browser
+2. Sign up with your email or GitHub
+3. Tap "Create Database"
+4. Name: lumuli-site-content
+5. Region: Pick closest to you
+6. Type: "Regional" (free tier)
+7. Tap "Create"
+8. You will see:
+   - REST URL (https://your-db.upstash.io)
+   - REST Token (long string)
+9. SAVE BOTH somewhere safe (Notes app)
+
+FREE TIER: 256 MB, 500K commands/month
+More than enough for your personal website!
+
+========================================
+STEP 4: SET UP RESEND (Phone)
+========================================
+
+1. Open resend.com in your phone browser
+2. Sign up with your email
+3. Tap "API Keys" in the sidebar
+4. Tap "Create API Key"
+5. Name: "Lumuli Website"
+6. Permission: "Sending Access"
+7. Copy the key (starts with "re_")
+8. SAVE IT somewhere safe (notes app)
+
+For testing emails:
+- Use "onboarding@resend.dev" as sender
+- For production later, verify a custom domain
+
+========================================
+STEP 5: CREATE VERCEL ACCOUNT (Phone)
+========================================
+
+1. Go to vercel.com on your phone
+2. Sign up with "Continue with GitHub"
+3. Authorize Vercel to access your GitHub
+4. You now have a Vercel account
+
+========================================
+STEP 6: DEPLOY TO VERCEL (Phone)
+========================================
+
+1. In Vercel dashboard, tap "Add New..." → "Project"
+2. Find your GitHub repo: "lumuli-andrew-website"
+3. Tap "Import"
+4. Vercel auto-detects Next.js
+5. BEFORE deploying, add Environment Variables:
+
+   Tap "Environment Variables" and add:
+
+   Variable 1:
+   Name: RESEND_API_KEY
+   Value: [paste your Resend API key from Step 4]
+
+   Variable 2:
+   Name: FROM_EMAIL
+   Value: onboarding@resend.dev
+
+   Variable 3:
+   Name: ADMIN_PASSCODE
+   Value: [choose a strong secret passcode, e.g., Lumuli2024!Andrew]
+
+   Variable 4:
+   Name: UPSTASH_REDIS_REST_URL
+   Value: [paste from Step 3]
+
+   Variable 5:
+   Name: UPSTASH_REDIS_REST_TOKEN
+   Value: [paste from Step 3]
+
+6. Tap "Deploy"
+7. Wait 1-2 minutes for build
+8. You'll get a URL like: https://lumuli-andrew-website.vercel.app
+
+========================================
+STEP 7: TEST EVERYTHING
+========================================
+
+1. Visit your live URL
+2. Check all sections load correctly
+3. Test contact form (submit a message)
+4. Check your email (andrewlumuli7@gmail.com) for the test message
+5. Visit: yoursite.com/admin
+6. Enter your ADMIN_PASSCODE
+7. Change some text, tap Save
+8. Refresh the homepage — changes should appear!
+9. Open in a different browser — changes should STILL appear
+   (This proves Upstash Redis persistence is working!)
+
+========================================
+TROUBLESHOOTING
+========================================
+
+Build fails?
+→ Check all files were uploaded to correct paths
+→ Check package.json has all dependencies listed
+→ Check tsconfig.json paths are correct
+
+Contact form not working?
+→ Check RESEND_API_KEY is correct
+→ Check FROM_EMAIL is onboarding@resend.dev (for testing)
+→ Check andrewlumuli7@gmail.com is in the "to" field
+
+Admin changes not saving?
+→ Check UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set
+→ Check ADMIN_PASSCODE matches what you enter
+→ Check browser console for errors
+
+Changes not showing on homepage?
+→ The homepage fetches from /api/content on every load
+→ Try hard refresh: pull down on mobile to refresh
+→ Check that save returned "Saved!" confirmation
+
+========================================
+FILE STRUCTURE CHECKLIST
+========================================
+
+lumuli-andrew-website/
+├── package.json
+├── next.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── postcss.config.js
+├── .gitignore
+├── .env.local.example
+└── src/
+    ├── lib/
+    │   └── kv.ts
+    └── app/
+        ├── layout.tsx
+        ├── page.tsx
+        ├── globals.css
+        ├── admin/
+        │   └── page.tsx
+        └── api/
+            ├── contact/
+            │   └── route.ts
+            ├── content/
+            │   └── route.ts
+            └── admin/
+                └── verify/
+                    └── route.ts
+
+========================================
+IMPORTANT NOTES
+========================================
+
+1. Upstash Redis Free Tier:
+   - 256 MB storage
+   - 500,000 commands/month
+   - 10 databases max
+   - More than enough for your site!
+
+2. Resend Free Tier:
+   - 100 emails/day
+   - Perfect for a personal site
+
+3. The admin backdoor:
+   - Protected by env variable passcode
+   - Changes persist in Upstash Redis globally
+   - Works on any device after saving
+
+4. For custom domain later:
+   - Buy domain (e.g., from Namecheap)
+   - Add to Vercel: Project Settings → Domains
+   - Update Resend verified sender domain
+
+5. All code is in the files provided.
+   Just upload them exactly as shown.
+
+========================================
+DONE! 🎉
+========================================
+
+Your site will be live at:
+https://lumuli-andrew-website.vercel.app
+
+Admin panel at:
+https://lumuli-andrew-website.vercel.app/admin
+
+Contact form emails go to:
+andrewlumuli7@gmail.com

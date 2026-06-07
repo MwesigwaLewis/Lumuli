@@ -1,0 +1,381 @@
+# 💻 PC DEPLOYMENT GUIDE
+# Lumuli Andrew Personal Website
+# Upstash Redis + Resend + GitHub + Vercel
+
+========================================
+PREREQUISITES
+========================================
+
+Install these on your PC:
+1. Node.js (v18+)     → https://nodejs.org
+2. Git                → https://git-scm.com/downloads
+3. VS Code (optional) → https://code.visualstudio.com
+
+Verify installations in terminal:
+  node --version
+  npm --version
+  git --version
+
+========================================
+STEP 1: EXTRACT THE PROJECT
+========================================
+
+1. Download the ZIP file: lumuli-andrew-website.zip
+2. Right-click → "Extract All" (or use 7-Zip)
+3. Move the extracted folder to your desired location
+   Example: C:\Users\YourName\Projects\lumuli-andrew-website
+
+========================================
+STEP 2: INSTALL DEPENDENCIES
+========================================
+
+1. Open terminal (Command Prompt, PowerShell, or VS Code terminal)
+2. Navigate to the project folder:
+
+   cd path\to\lumuli-andrew-website
+
+3. Install dependencies:
+
+   npm install
+
+This installs Next.js, React, Resend, Upstash Redis, Framer Motion, etc.
+
+========================================
+STEP 3: SET UP ENVIRONMENT VARIABLES
+========================================
+
+1. In the project root, create a file named: .env.local
+2. Open it in any text editor and paste:
+
+   # Resend API Key - Get from https://resend.com
+   RESEND_API_KEY=re_your_api_key_here
+
+   # For testing, use onboarding@resend.dev
+   # For production, verify your domain
+   FROM_EMAIL=onboarding@resend.dev
+
+   # Admin passcode for the backdoor (choose a strong one)
+   ADMIN_PASSCODE=your_secure_passcode_here
+
+   # Upstash Redis - Get from https://console.upstash.com
+   # Create a free database, then copy the REST URL and Token
+   UPSTASH_REDIS_REST_URL=
+   UPSTASH_REDIS_REST_TOKEN=
+
+3. Save the file
+
+IMPORTANT: .env.local is in .gitignore and will NOT be committed to GitHub.
+
+========================================
+STEP 4: CREATE UPSTASH REDIS DATABASE (FREE)
+========================================
+
+1. Go to https://console.upstash.com
+2. Sign up with your email or GitHub
+3. Click "Create Database"
+4. Name: lumuli-site-content
+5. Region: Pick closest to you (us-east-1, eu-west-1, etc.)
+6. Type: "Regional" (free tier) or "Global" (paid)
+7. Click "Create"
+8. You will see a details page with:
+   - REST URL (looks like: https://your-db.upstash.io)
+   - REST Token (long string)
+9. Copy these and paste into your .env.local:
+
+   UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
+   UPSTASH_REDIS_REST_TOKEN=your_token_here
+
+FREE TIER LIMITS:
+- 256 MB storage
+- 500,000 commands/month
+- 10 databases max
+- More than enough for your personal website!
+
+========================================
+STEP 5: TEST LOCALLY (Optional but Recommended)
+========================================
+
+1. In terminal, run:
+
+   npm run dev
+
+2. Open browser → http://localhost:3000
+3. Check the site loads correctly
+4. Test the contact form (won't send email without real Resend key)
+5. Visit http://localhost:3000/admin
+6. Press Ctrl+C in terminal to stop
+
+========================================
+STEP 6: CREATE GITHUB REPOSITORY
+========================================
+
+METHOD A: GitHub Desktop (Easiest)
+------------------------------------
+1. Install GitHub Desktop: https://desktop.github.com
+2. Sign in with your GitHub account
+3. File → Add local repository
+4. Browse to your project folder
+5. Repository name: lumuli-andrew-website
+6. Description: "Personal website for Lumuli Andrew"
+7. Make it PUBLIC
+8. Click "Publish repository"
+
+METHOD B: Command Line
+----------------------
+1. In terminal (inside project folder):
+
+   git init
+   git add .
+   git commit -m "Initial commit"
+
+2. Go to github.com → New repository
+3. Name: lumuli-andrew-website
+4. Make it PUBLIC, NO README
+5. Copy the commands under "...or push an existing repository"
+   They look like:
+
+   git remote add origin https://github.com/YOURNAME/lumuli-andrew-website.git
+   git branch -M main
+   git push -u origin main
+
+6. Run those commands in your terminal
+
+========================================
+STEP 7: SET UP RESEND (for Contact Form)
+========================================
+
+1. Go to https://resend.com
+2. Sign up with your email
+3. Navigate to API Keys → Create API Key
+4. Name: "Lumuli Website"
+5. Permission: "Sending Access"
+6. Copy the key (starts with "re_")
+7. Update your .env.local:
+   RESEND_API_KEY=re_your_actual_key_here
+
+For testing emails, use: onboarding@resend.dev as sender
+For production, verify a custom domain at Resend
+
+========================================
+STEP 8: DEPLOY TO VERCEL
+========================================
+
+METHOD A: Vercel Dashboard (Web)
+--------------------------------
+1. Go to https://vercel.com
+2. Sign up with "Continue with GitHub"
+3. Authorize Vercel
+4. Go to vercel.com/dashboard
+5. Click "Add New..." → "Project"
+6. Find your GitHub repo: lumuli-andrew-website
+7. Click "Import"
+8. Vercel auto-detects Next.js
+9. Add Environment Variables BEFORE deploying:
+
+   Click "Environment Variables" and add:
+
+   Name: RESEND_API_KEY
+   Value: [paste your Resend API key]
+
+   Name: FROM_EMAIL
+   Value: onboarding@resend.dev
+
+   Name: ADMIN_PASSCODE
+   Value: [your chosen secret passcode]
+
+   Name: UPSTASH_REDIS_REST_URL
+   Value: [paste from Upstash console]
+
+   Name: UPSTASH_REDIS_REST_TOKEN
+   Value: [paste from Upstash console]
+
+10. Click "Deploy"
+11. Wait 1-2 minutes for build
+12. Your site is live!
+
+METHOD B: Vercel CLI (Advanced)
+-------------------------------
+1. Install Vercel CLI:
+
+   npm i -g vercel
+
+2. Login:
+
+   vercel login
+
+3. Deploy from project folder:
+
+   vercel
+
+4. Follow prompts, link to your GitHub repo
+5. Set environment variables via CLI or dashboard
+
+========================================
+STEP 9: VERIFY DEPLOYMENT
+========================================
+
+1. Visit your live URL (e.g., https://lumuli-andrew-website.vercel.app)
+2. Test all sections:
+   - Hero section loads
+   - About section
+   - Focus areas (4 cards)
+   - Skills & interests
+   - Current work
+   - Contact form
+
+3. Test contact form:
+   - Fill in name, email, message
+   - Submit
+   - Check andrewlumuli7@gmail.com for the email
+
+4. Test admin backdoor:
+   - Visit yoursite.com/admin
+   - Enter your ADMIN_PASSCODE
+   - Edit hero title or about text
+   - Click "Save"
+   - Refresh homepage → changes appear immediately
+
+5. Test persistence:
+   - Open site in a different browser
+   - Changes should still appear
+   - This proves Upstash Redis persistence is working
+
+========================================
+STEP 10: CUSTOM DOMAIN (Optional)
+========================================
+
+1. Buy a domain (Namecheap, GoDaddy, etc.)
+2. In Vercel dashboard → Project Settings → Domains
+3. Add your domain (e.g., lumuliandrew.com)
+4. Vercel gives you DNS records
+5. Add those records in your domain registrar
+6. Wait for DNS propagation (up to 48 hours)
+7. Update Resend verified sender to your custom domain
+
+========================================
+TROUBLESHOOTING
+========================================
+
+Build fails on Vercel?
+→ Check all files are committed to GitHub
+→ Check package.json has all dependencies
+→ Check tsconfig.json paths are correct
+→ View build logs in Vercel dashboard
+
+Contact form not sending?
+→ Verify RESEND_API_KEY is correct
+→ Check FROM_EMAIL is onboarding@resend.dev (for testing)
+→ Verify andrewlumuli7@gmail.com is in the "to" field
+→ Check spam/junk folder
+
+Admin changes not saving?
+→ Check UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set
+→ Verify ADMIN_PASSCODE matches what you enter
+→ Check browser DevTools → Network tab for API errors
+→ Check Vercel Functions logs in dashboard
+
+Changes not showing on homepage?
+→ The homepage fetches from /api/content on every load
+→ Hard refresh: Ctrl+Shift+R (or Cmd+Shift+R on Mac)
+→ Check that save returned "Saved!" confirmation
+→ Check Upstash console to see if data was stored
+
+Local dev server won't start?
+→ Check Node.js version: node --version (should be 18+)
+→ Delete node_modules and package-lock.json
+→ Run npm install again
+→ Check for port conflicts: lsof -i :3000 (Mac/Linux) or netstat -ano | findstr :3000 (Windows)
+
+========================================
+USEFUL COMMANDS
+========================================
+
+# Start local development server
+npm run dev
+
+# Build for production (test locally)
+npm run build
+
+# Start production build locally
+npm start
+
+# Lint code
+npm run lint
+
+# Deploy via Vercel CLI
+vercel
+
+# Deploy production via Vercel CLI
+vercel --prod
+
+# View Vercel logs
+vercel logs
+
+========================================
+FILE STRUCTURE
+========================================
+
+lumuli-andrew-website/
+├── package.json              # Dependencies & scripts
+├── next.config.js            # Next.js config (static export)
+├── tailwind.config.js        # Tailwind CSS config
+├── tsconfig.json             # TypeScript config
+├── postcss.config.js         # PostCSS config
+├── .gitignore                # Files to ignore in Git
+├── .env.local                # Environment variables (NOT in Git)
+├── .env.local.example        # Example env file
+├── DEPLOYMENT_INSTRUCTIONS.txt (phone guide)
+├── PC_DEPLOYMENT_INSTRUCTIONS.txt (this file)
+└── src/
+    ├── lib/
+    │   └── kv.ts             # Upstash Redis client
+    └── app/
+        ├── layout.tsx        # Root layout (metadata, fonts)
+        ├── page.tsx          # Homepage (dynamic content)
+        ├── globals.css       # Global styles
+        ├── admin/
+        │   └── page.tsx      # Admin panel (backdoor)
+        └── api/
+            ├── contact/
+            │   └── route.ts  # Contact form API (Resend)
+            ├── content/
+            │   └── route.ts  # Public content reader (Upstash)
+            └── admin/
+                └── verify/
+                    └── route.ts  # Admin auth + save/load (Upstash)
+
+========================================
+ENVIRONMENT VARIABLES REFERENCE
+========================================
+
+RESEND_API_KEY              # Your Resend API key (re_...)
+FROM_EMAIL                  # Sender email (onboarding@resend.dev for testing)
+ADMIN_PASSCODE              # Secret code to access /admin
+UPSTASH_REDIS_REST_URL      # Upstash Redis REST URL (from console)
+UPSTASH_REDIS_REST_TOKEN    # Upstash Redis REST Token (from console)
+
+========================================
+FREE TIER LIMITS
+========================================
+
+Vercel Hosting:              Unlimited bandwidth, 100GB storage
+Upstash Redis:               256 MB, 500K commands/month, 10 databases
+Resend:                      100 emails/day
+GitHub:                      Unlimited public repos
+
+All free tiers are MORE than enough for a personal website.
+
+========================================
+DONE! 🎉
+========================================
+
+Your site will be live at:
+https://lumuli-andrew-website.vercel.app
+
+Admin panel at:
+https://lumuli-andrew-website.vercel.app/admin
+
+Contact form emails go to:
+andrewlumuli7@gmail.com
+
+Content changes via admin persist globally via Upstash Redis.
