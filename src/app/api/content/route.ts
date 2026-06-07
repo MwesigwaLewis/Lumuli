@@ -1,7 +1,7 @@
-export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/kv";
 
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const saved = await redis.get<string>("site_content");
