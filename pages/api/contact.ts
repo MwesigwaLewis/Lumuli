@@ -1,11 +1,38 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// Simple in-memory rate limiter (resets on server restart)
+const rateLimit = new Map<string, number>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 3;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const lastRequest = rateLimit.get(ip);
+
+  if (lastRequest && now - lastRequest < RATE_LIMIT_WINDOW) {
+    return true;
+  }
+
+  rateLimit.set(ip, now);
+  return false;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Rate limiting
+  const clientIp = req.headers["x-forwarded-for"]?.toString().split(",")[0] || "unknown";
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: "Too many requests. Please wait a minute." });
+  }
+
+  if (!resend) {
+    return res.status(503).json({ error: "Email service not configured" });
   }
 
   try {
@@ -23,9 +50,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Message must be between 10 and 5000 characters" });
     }
 
+    const recipientEmail = process.env.CONTACT_EMAIL || "andrewlumuli7@gmail.com";
+
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || "onboarding@resend.dev",
-      to: ["andrewlumuli7@gmail.com"],
+      to: [recipientEmail],
       subject: `New Contact Form Message from ${name}`,
       replyTo: email,
       html: `
