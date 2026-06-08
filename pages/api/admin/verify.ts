@@ -20,11 +20,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (action === "save" && content) {
+      if (!redis) {
+        return res.status(503).json({ error: "Database not available" });
+      }
       await redis.set("site_content", JSON.stringify(content));
       return res.status(200).json({ success: true, saved: true });
     }
 
     if (action === "load") {
+      if (!redis) {
+        return res.status(503).json({ error: "Database not available" });
+      }
       const saved = await redis.get<string>("site_content");
       return res.status(200).json({ success: true, content: saved ? JSON.parse(saved) : null });
     }
