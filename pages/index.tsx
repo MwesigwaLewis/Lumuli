@@ -533,12 +533,12 @@ export default function Home() {
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
                           Sending...
-                        </>
+                        <div>
                       ) : (
                         <>
                           <Send className="w-5 h-5" />
                           Send Message
-                        </>
+                        </div>
                       )}
                     </button>
 
