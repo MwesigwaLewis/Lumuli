@@ -5,47 +5,69 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
   body {
-    @apply bg-dark-900 text-gray-100 antialiased;
+    @apply bg-ink-950 text-sand-100 font-sans;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(196,147,94,0.06), transparent);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(196,147,94,0.3);
+    color: #faf8f5;
   }
 }
 
 @layer components {
-  .glass {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  .section-label {
+    @apply text-xs font-semibold tracking-[0.2em] uppercase text-brand-400 mb-4;
   }
-  
-  .glass-strong {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20;
+
+  .card {
+    @apply bg-ink-800/60 border border-ink-700/50 rounded-2xl p-6 sm:p-8;
+    @apply hover:border-brand-500/20 transition-all duration-500;
   }
-  
+
+  .card-hover {
+    @apply card hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/5;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-brand-500 hover:bg-brand-600 text-ink-950 font-semibold rounded-xl;
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/20;
+  }
+
+  .btn-outline {
+    @apply px-6 py-3 border border-sand-300/20 text-sand-100 font-medium rounded-xl;
+    @apply hover:bg-sand-100/5 hover:border-sand-300/40 transition-all duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3.5 bg-ink-800 border border-ink-600 rounded-xl text-sand-100;
+    @apply placeholder:text-sand-400/40 focus:outline-none focus:border-brand-500/50;
+    @apply focus:ring-1 focus:ring-brand-500/20 transition-all duration-300;
+  }
+
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-purple-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-accent-400;
   }
-  
-  .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+
+  .divider {
+    @apply w-16 h-0.5 bg-gradient-to-r from-brand-500 to-transparent rounded-full;
   }
 }
 
 @layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
+  .text-balance {
+    text-wrap: balance;
   }
-  
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
 }
