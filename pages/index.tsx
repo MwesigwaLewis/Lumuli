@@ -194,7 +194,7 @@ export default function Home() {
           >
             <motion.div variants={fadeInUp} className="mb-6">
               <span className="inline-block px-4 py-1.5 rounded-full glass text-primary-400 text-sm font-medium mb-4">
-                Based in Uganda 馃嚭馃嚞
+                Based in Uganda 🇺🇬
               </span>
             </motion.div>
 
@@ -397,17 +397,17 @@ export default function Home() {
               <div className="space-y-6">
                 {[
                   {
-                    flag: "馃嚭馃嚞",
+                    flag: "🇺🇬",
                     title: "Youth Fellowship Programs",
                     description: "Supporting youth fellowship programs, mentorship initiatives, and community engagement activities at St. Andrew's Church, Komamboga."
                   },
                   {
-                    flag: "馃Д",
+                    flag: "🧥",
                     title: "Fashion Documentation",
                     description: "Following seasonal fashion developments and documenting notable trends within local and international fashion communities."
                   },
                   {
-                    flag: "鈾燂笍",
+                    flag: "♟️",
                     title: "Advanced Chess Strategy",
                     description: "Expanding my knowledge of advanced chess concepts and strategic gameplay techniques."
                   }
@@ -533,12 +533,12 @@ export default function Home() {
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
                           Sending...
-                        <div>
+                        </>
                       ) : (
                         <>
                           <Send className="w-5 h-5" />
                           Send Message
-                        </div>
+                        </>
                       )}
                     </button>
 
@@ -573,18 +573,14 @@ export default function Home() {
         <footer className="py-8 px-4 border-t border-white/5">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-gray-500 text-sm">
-              漏 {new Date().getFullYear()} {content.heroTitle}. All rights reserved.
+              © {new Date().getFullYear()} {content.heroTitle}. All rights reserved.
             </p>
             <p className="text-gray-600 text-sm">
-              Built with purpose and passion 馃嚭馃嚞
+              Built with purpose and passion 🇺🇬
             </p>
           </div>
         </footer>
       </div>
     </div>
   );
-                      }
-
-
-
-                      
+}
