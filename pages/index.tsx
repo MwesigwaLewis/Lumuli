@@ -485,7 +485,7 @@ export default function Home() {
                     <a href="https://wa.me/256760488800" target="_blank" rel="noopener noreferrer" className="text-lg font-medium hover:text-green-400 transition-colors">
                       +256 760 488800
                     </a>
-                    <p className="text-xs text-sand-500 mt-1">Replace with your actual number in the code</p>
+                    <p className="text-xs text-sand-500 mt-1">Feel free to contact me via WhatsApp</p>
                   </div>
                   <div className="card">
                     <h3 className="font-bold mb-2">Connect With Me</h3>
