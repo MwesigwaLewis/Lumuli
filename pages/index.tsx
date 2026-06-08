@@ -118,7 +118,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div>
       <Head>
         <title>Lumuli Andrew | Youth Leader & Strategic Thinker</title>
         <meta name="description" content="Personal website of Lumuli Andrew - Youth leader, strategic thinker, and fashion enthusiast based in Uganda." />
@@ -464,4 +464,127 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Location</p>
-  
+                      <p className="text-lg">{content.location}</p>
+                    </div>
+                  </div>
+
+                  <div className="glass rounded-xl p-6">
+                    <h3 className="font-bold mb-3">Connect With Me</h3>
+                    <p className="text-gray-400 text-sm">
+                      I&apos;m always open to discussing youth ministry, strategic initiatives, 
+                      fashion trends, or just having a meaningful conversation.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <motion.div variants={fadeInUp}>
+                  <form onSubmit={handleSubmit} className="glass rounded-xl p-6 space-y-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        required
+                        value={formState.name}
+                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500"
+                        placeholder="John Doe"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                        Your Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        required
+                        value={formState.email}
+                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                        Message
+                      </label>
+                      <textarea
+                        id="message"
+                        required
+                        rows={5}
+                        value={formState.message}
+                        onChange={(e) => setFormState({ ...formState, message: e.target.value })}
+                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500 resize-none"
+                        placeholder="Your message here..."
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-800 disabled:cursor-not-allowed rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-primary-500/25"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5" />
+                          Send Message
+                        </>
+                      )}
+                    </button>
+
+                    {submitStatus === "success" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 text-green-400 text-sm"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Message sent successfully! I&apos;ll get back to you soon.
+                      </motion.div>
+                    )}
+
+                    {submitStatus === "error" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 text-red-400 text-sm"
+                      >
+                        Something went wrong. Please try again later.
+                      </motion.div>
+                    )}
+                  </form>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-8 px-4 border-t border-white/5">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-gray-500 text-sm">
+              漏 {new Date().getFullYear()} {content.heroTitle}. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-sm">
+              Built with purpose and passion 馃嚭馃嚞
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+                      }
+
+
+
+                      
