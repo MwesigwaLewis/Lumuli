@@ -1,23 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
-import { motion } from "framer-motion";
 import {
-  Church,
-  Users,
-  Palette,
-  Brain,
-  Mail,
-  MapPin,
-  ChevronDown,
-  Menu,
-  X,
-  Send,
-  CheckCircle,
-  Loader2,
-  Crown,
-  Gamepad2,
-  TrendingUp,
-  Heart
+  Menu, X, Send, Mail, MapPin, ChevronDown,
+  Church, Users, Palette, Brain, Crown,
+  Gamepad2, TrendingUp, Heart, ArrowRight,
+  Loader2, CheckCircle, AlertCircle
 } from "lucide-react";
 
 interface SiteContent {
@@ -28,7 +15,7 @@ interface SiteContent {
   location: string;
 }
 
-const defaultContent: SiteContent = {
+const FALLBACK: SiteContent = {
   heroTitle: "Lumuli Andrew",
   heroSubtitle: "A youth leader, strategic thinker, and fashion enthusiast passionate about faith-centered service, youth empowerment, and personal development.",
   aboutText: "I am a youth leader, strategic thinker, and fashion enthusiast based in Uganda. My journey is driven by a deep passion for faith-centered service, youth empowerment, personal development, and staying informed about evolving fashion trends and contemporary culture. I believe in the power of community, the importance of mentorship, and the impact of strategic thinking in solving real-world challenges. Whether it's leading youth programs, analyzing fashion trends, or playing chess, I approach every endeavor with dedication and purpose.",
@@ -36,551 +23,578 @@ const defaultContent: SiteContent = {
   location: "Kampala, Uganda",
 };
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-};
+/* ─── Reusable Animation Hook ─── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.unobserve(el); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
-};
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, visible } = useInView();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(24px)",
+        transition: `opacity 0.7s ease-out ${delay}ms, transform 0.7s ease-out ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
+/* ─── Data ─── */
+const FOCUS_AREAS = [
+  {
+    icon: <Church className="w-6 h-6" />,
+    title: "Faith & Ministry",
+    desc: "A committed member of the Anglican Church, guided by Christian values and dedicated to serving both the church and the wider community through meaningful engagement and leadership.",
+  },
+  {
+    icon: <Users className="w-6 h-6" />,
+    title: "Youth Leadership",
+    desc: "Actively involved in youth ministry at St. Andrew's Church, Komamboga, contributing to mentorship, community outreach, spiritual development, and initiatives that encourage positive growth among young people.",
+  },
+  {
+    icon: <Palette className="w-6 h-6" />,
+    title: "Fashion & Style",
+    desc: "Enthusiastic about contemporary fashion, with a keen interest in emerging trends, design innovation, personal style, and the evolving landscape of local and global apparel.",
+  },
+  {
+    icon: <Brain className="w-6 h-6" />,
+    title: "Strategic Thinking",
+    desc: "Passionate about analytical thinking, problem-solving, and long-term planning, with a particular interest in identifying patterns and developing effective strategies.",
+  },
+];
+
+const SKILLS = [
+  { icon: <Crown className="w-5 h-5" />, title: "Community Leadership", desc: "Youth mentorship, public speaking, event coordination, and faith-based community engagement." },
+  { icon: <TrendingUp className="w-5 h-5" />, title: "Fashion Trend Analysis", desc: "Following and interpreting developments in modern fashion, visual aesthetics, and style culture." },
+  { icon: <Gamepad2 className="w-5 h-5" />, title: "Chess & Critical Thinking", desc: "Strategic decision-making through competitive chess and tactical analysis." },
+  { icon: <Heart className="w-5 h-5" />, title: "Digital Finance", desc: "Exploring digital financial tools, mobile-based investments, and emerging fintech technologies." },
+];
+
+const CURRENT_WORK = [
+  { flag: "🇺🇬", title: "Youth Fellowship Programs", desc: "Supporting youth fellowship programs, mentorship initiatives, and community engagement activities at St. Andrew's Church, Komamboga." },
+  { flag: "👔", title: "Fashion Documentation", desc: "Following seasonal fashion developments and documenting notable trends within local and international fashion communities." },
+  { flag: "♟️", title: "Advanced Chess Strategy", desc: "Expanding my knowledge of advanced chess concepts and strategic gameplay techniques." },
+];
+
+/* ─── Main Page ─── */
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [formState, setFormState] = useState({ name: "", email: "", message: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
-  const [content, setContent] = useState<SiteContent>(defaultContent);
-  const [contentLoaded, setContentLoaded] = useState(false);
+  const [content, setContent] = useState<SiteContent>(FALLBACK);
+  const [loaded, setLoaded] = useState(false);
 
+  /* Form state */
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
+  /* Load content from Redis */
   useEffect(() => {
     fetch("/api/content")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.heroTitle) {
-          setContent(data);
-        }
-        setContentLoaded(true);
-      })
-      .catch(() => setContentLoaded(true));
+      .then((r) => r.json())
+      .then((d) => { if (d?.heroTitle) setContent(d); })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
+  /* Scroll listener */
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setSubmitting(true);
     setSubmitStatus("idle");
-
     try {
-      const response = await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(form),
       });
-
-      if (response.ok) {
+      if (res.ok) {
         setSubmitStatus("success");
-        setFormState({ name: "", email: "", message: "" });
+        setForm({ name: "", email: "", message: "" });
       } else {
         setSubmitStatus("error");
       }
     } catch {
       setSubmitStatus("error");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
   const navLinks = [
     { href: "#about", label: "About" },
-    { href: "#focus", label: "Focus Areas" },
+    { href: "#focus", label: "Focus" },
     { href: "#skills", label: "Skills" },
-    { href: "#current", label: "Current Work" },
+    { href: "#work", label: "Current Work" },
     { href: "#contact", label: "Contact" },
   ];
 
-  if (!contentLoaded) {
+  if (!loaded) {
     return (
-      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-ink-950">
+        <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-ink-950 text-sand-100 overflow-x-hidden">
       <Head>
-        <title>Lumuli Andrew | Youth Leader & Strategic Thinker</title>
-        <meta name="description" content="Personal website of Lumuli Andrew - Youth leader, strategic thinker, and fashion enthusiast based in Uganda." />
-        <meta name="keywords" content="Lumuli Andrew, Youth Leader, Uganda, Anglican Church, Strategic Thinking, Fashion" />
+        <title>{content.heroTitle} | Youth Leader & Strategic Thinker</title>
+        <meta name="description" content={`Personal website of ${content.heroTitle} — Youth leader, strategic thinker, and fashion enthusiast based in Uganda.`} />
       </Head>
 
-      <div className="min-h-screen bg-dark-900 text-gray-100 overflow-x-hidden">
-        {/* Navigation */}
-        <nav
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-            scrolled ? "glass-strong shadow-lg" : "bg-transparent"
-          }`}
-        >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <a href="#" className="text-xl font-bold text-gradient">
-                {content.heroTitle}
-              </a>
+      {/* ═══════════════════════════════════════════
+          NAVIGATION
+      ═══════════════════════════════════════════ */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-ink-950/90 backdrop-blur-md border-b border-ink-800/50" : "bg-transparent"}`}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <a href="#" className="text-lg sm:text-xl font-bold text-gradient tracking-tight">
+              {content.heroTitle}
+            </a>
 
-              <div className="hidden md:flex items-center space-x-8">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm text-gray-300 hover:text-primary-400 transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-8">
+              {navLinks.map((l) => (
+                <a key={l.href} href={l.href} className="text-sm text-sand-300 hover:text-brand-400 transition-colors duration-300">
+                  {l.label}
+                </a>
+              ))}
+            </div>
+
+            {/* Mobile menu toggle */}
+            <button className="md:hidden p-2 text-sand-300" onClick={() => setMenuOpen(!menuOpen)}>
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile nav */}
+        {menuOpen && (
+          <div className="md:hidden bg-ink-900/95 backdrop-blur-lg border-t border-ink-700/50">
+            <div className="px-4 py-4 space-y-1">
+              {navLinks.map((l) => (
+                <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)} className="block py-3 px-4 text-sand-300 hover:text-brand-400 hover:bg-ink-800/50 rounded-lg transition-colors">
+                  {l.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* ═══════════════════════════════════════════
+          HERO SECTION
+          📸 PICTURE PLACEMENT: Add a professional
+          headshot/portrait of Lumuli Andrew here.
+          Save it as /public/hero-portrait.jpg
+          (recommended: 600x750px, high quality)
+      ═══════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex items-center pt-20 pb-16 px-4 sm:px-6 overflow-hidden">
+        {/* Decorative background blobs */}
+        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Text */}
+            <div className="order-2 lg:order-1">
+              <div className="animate-fade-up">
+                <span className="section-label">Based in Uganda 🇺🇬</span>
               </div>
 
-              <button
-                className="md:hidden p-2 text-gray-300"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
+              <h1 className="animate-fade-up animate-delay-100 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] tracking-tight mb-6">
+                Hello, I&apos;m{" "}
+                <span className="text-gradient">{content.heroTitle}</span>
+              </h1>
+
+              <p className="animate-fade-up animate-delay-200 text-lg sm:text-xl text-sand-300 leading-relaxed max-w-xl mb-8 text-balance">
+                {content.heroSubtitle}
+              </p>
+
+              <div className="animate-fade-up animate-delay-300 flex flex-wrap gap-4">
+                <a href="#contact" className="btn-primary inline-flex items-center gap-2">
+                  Get in Touch <ArrowRight size={18} />
+                </a>
+                <a href="#about" className="btn-outline">Learn More</a>
+              </div>
+            </div>
+
+            {/* Right: Portrait placeholder */}
+            <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+              <div className="animate-fade-up animate-delay-200 relative">
+                {/* Decorative ring */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-brand-500/20 to-accent-500/20 rounded-3xl blur-xl" />
+                {/* 
+                  📸 REPLACE THIS DIV with your actual image:
+                  <img 
+                    src="/hero-portrait.jpg" 
+                    alt="Lumuli Andrew portrait" 
+                    className="relative w-72 h-96 sm:w-80 sm:h-[28rem] object-cover rounded-3xl border border-ink-700/50 shadow-2xl"
+                  />
+                */}
+                <div className="relative w-72 h-96 sm:w-80 sm:h-[28rem] bg-gradient-to-br from-ink-800 to-ink-700 rounded-3xl border border-ink-700/50 flex items-center justify-center">
+                  <div className="text-center px-6">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-ink-600 flex items-center justify-center">
+                      <Users className="w-8 h-8 text-sand-400" />
+                    </div>
+                    <p className="text-sand-400 text-sm">📸 Add your portrait here</p>
+                    <p className="text-sand-500 text-xs mt-1">Save as /public/hero-portrait.jpg</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="md:hidden glass-strong border-t border-white/10"
-            >
-              <div className="px-4 py-4 space-y-3">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="block text-gray-300 hover:text-primary-400 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </nav>
-
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-dark-900 to-purple-900/20" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50" />
-
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="relative z-10 text-center max-w-3xl mx-auto"
-          >
-            <motion.div variants={fadeInUp} className="mb-6">
-              <span className="inline-block px-4 py-1.5 rounded-full glass text-primary-400 text-sm font-medium mb-4">
-                Based in Uganda 🇺🇬
-              </span>
-            </motion.div>
-
-            <motion.h1
-              variants={fadeInUp}
-              className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight"
-            >
-              Hello, I&apos;m <span className="text-gradient">{content.heroTitle}</span>
-            </motion.h1>
-
-            <motion.p
-              variants={fadeInUp}
-              className="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed"
-            >
-              {content.heroSubtitle}
-            </motion.p>
-
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="#contact"
-                className="px-8 py-3 bg-primary-600 hover:bg-primary-700 rounded-full font-medium transition-all hover:shadow-lg hover:shadow-primary-500/25"
-              >
-                Get in Touch
-              </a>
-              <a
-                href="#about"
-                className="px-8 py-3 glass rounded-full font-medium hover:bg-white/10 transition-all"
-              >
-                Learn More
-              </a>
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          >
-            <a href="#about" className="animate-bounce block text-gray-500 hover:text-primary-400 transition-colors">
-              <ChevronDown size={28} />
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+            <a href="#about" className="text-sand-500 hover:text-brand-400 transition-colors">
+              <ChevronDown size={24} />
             </a>
-          </motion.div>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        {/* About Section */}
-        <section id="about" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">About Me</h2>
-                <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full" />
-              </motion.div>
+      {/* ═══════════════════════════════════════════
+          ABOUT SECTION
+          📸 PICTURE PLACEMENT: Add a candid/lifestyle
+          photo of Lumuli here (e.g., at church, with
+          youth group, or doing chess).
+          Save as /public/about-photo.jpg
+      ═══════════════════════════════════════════ */}
+      <section id="about" className="py-20 sm:py-28 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left: Photo placeholder */}
+            <FadeIn>
+              <div className="relative">
+                <div className="absolute -inset-3 bg-gradient-to-br from-brand-500/10 to-transparent rounded-3xl blur-lg" />
+                {/*
+                  📸 REPLACE THIS DIV with your actual image:
+                  <img 
+                    src="/about-photo.jpg" 
+                    alt="Lumuli Andrew" 
+                    className="relative w-full aspect-[4/5] object-cover rounded-2xl border border-ink-700/50"
+                  />
+                */}
+                <div className="relative w-full aspect-[4/5] bg-gradient-to-br from-ink-800 to-ink-700 rounded-2xl border border-ink-700/50 flex items-center justify-center">
+                  <div className="text-center px-6">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-ink-600 flex items-center justify-center">
+                      <Heart className="w-7 h-7 text-sand-400" />
+                    </div>
+                    <p className="text-sand-400 text-sm">📸 Add a lifestyle photo</p>
+                    <p className="text-sand-500 text-xs mt-1">Save as /public/about-photo.jpg</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
 
-              <motion.div variants={fadeInUp} className="glass rounded-2xl p-8 md:p-12">
-                <p className="text-lg text-gray-300 leading-relaxed whitespace-pre-line">
+            {/* Right: Text */}
+            <div>
+              <FadeIn delay={100}>
+                <span className="section-label">About Me</span>
+              </FadeIn>
+              <FadeIn delay={200}>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
+                  Driven by <span className="text-gradient">Purpose</span> & Passion
+                </h2>
+              </FadeIn>
+              <FadeIn delay={300}>
+                <div className="divider mb-6" />
+              </FadeIn>
+              <FadeIn delay={400}>
+                <p className="text-sand-300 leading-relaxed text-lg whitespace-pre-line">
                   {content.aboutText}
                 </p>
-              </motion.div>
-            </motion.div>
+              </FadeIn>
+
+              <FadeIn delay={500}>
+                <div className="mt-8 flex flex-wrap gap-6">
+                  <div className="flex items-center gap-2 text-sand-400">
+                    <MapPin size={18} className="text-brand-400" />
+                    <span>{content.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sand-400">
+                    <Mail size={18} className="text-brand-400" />
+                    <a href={`mailto:${content.email}`} className="hover:text-brand-400 transition-colors">
+                      {content.email}
+                    </a>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Areas of Focus */}
-        <section id="focus" className="py-20 px-4 bg-dark-800/50">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="text-center mb-16">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">Areas of Focus</h2>
-                <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-4" />
-                <p className="text-gray-400">The pillars that define my work and passion</p>
-              </motion.div>
+      {/* ═══════════════════════════════════════════
+          FOCUS AREAS
+      ═══════════════════════════════════════════ */}
+      <section id="focus" className="py-20 sm:py-28 px-4 sm:px-6 bg-ink-900/30">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <div className="text-center mb-16">
+              <span className="section-label">What I Do</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                Areas of <span className="text-gradient">Focus</span>
+              </h2>
+              <p className="text-sand-400 max-w-lg mx-auto">The pillars that define my work and passion</p>
+            </div>
+          </FadeIn>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    icon: <Church className="w-8 h-8" />,
-                    title: "Faith & Ministry",
-                    description: "A committed member of the Anglican Church, guided by Christian values and dedicated to serving both the church and the wider community through meaningful engagement and leadership.",
-                    color: "from-amber-500/20 to-orange-500/20",
-                    iconColor: "text-amber-400"
-                  },
-                  {
-                    icon: <Users className="w-8 h-8" />,
-                    title: "Youth Leadership",
-                    description: "Actively involved in youth ministry at St. Andrew's Church, Komamboga, contributing to mentorship, community outreach, spiritual development, and initiatives that encourage positive growth among young people.",
-                    color: "from-primary-500/20 to-cyan-500/20",
-                    iconColor: "text-primary-400"
-                  },
-                  {
-                    icon: <Palette className="w-8 h-8" />,
-                    title: "Fashion & Style",
-                    description: "Enthusiastic about contemporary fashion, with a keen interest in emerging trends, design innovation, personal style, and the evolving landscape of local and global apparel.",
-                    color: "from-pink-500/20 to-rose-500/20",
-                    iconColor: "text-pink-400"
-                  },
-                  {
-                    icon: <Brain className="w-8 h-8" />,
-                    title: "Strategic Thinking",
-                    description: "Passionate about analytical thinking, problem-solving, and long-term planning, with a particular interest in identifying patterns and developing effective strategies.",
-                    color: "from-purple-500/20 to-violet-500/20",
-                    iconColor: "text-purple-400"
-                  }
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    variants={fadeInUp}
-                    className={`glass rounded-2xl p-8 hover-lift group bg-gradient-to-br ${item.color}`}
-                  >
-                    <div className={`${item.iconColor} mb-4 group-hover:scale-110 transition-transform`}>
-                      {item.icon}
+          <div className="grid sm:grid-cols-2 gap-5">
+            {FOCUS_AREAS.map((item, i) => (
+              <FadeIn key={item.title} delay={i * 100}>
+                <div className="card-hover h-full">
+                  <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center text-brand-400 mb-5">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                  <p className="text-sand-400 leading-relaxed text-sm">{item.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          SKILLS & INTERESTS
+      ═══════════════════════════════════════════ */}
+      <section id="skills" className="py-20 sm:py-28 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <div className="text-center mb-16">
+              <span className="section-label">Expertise</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                Skills & <span className="text-gradient">Interests</span>
+              </h2>
+              <div className="divider mx-auto" />
+            </div>
+          </FadeIn>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {SKILLS.map((skill, i) => (
+              <FadeIn key={skill.title} delay={i * 100}>
+                <div className="card-hover text-center h-full">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-brand-500/10 flex items-center justify-center text-brand-400 mb-5">
+                    {skill.icon}
+                  </div>
+                  <h3 className="font-bold mb-2">{skill.title}</h3>
+                  <p className="text-sand-400 text-sm leading-relaxed">{skill.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          CURRENT WORK
+          📸 PICTURE PLACEMENT: Add photos of youth
+          fellowship events, fashion looks, or chess
+          boards here. Save as:
+          /public/work-youth.jpg
+          /public/work-fashion.jpg  
+          /public/work-chess.jpg
+      ═══════════════════════════════════════════ */}
+      <section id="work" className="py-20 sm:py-28 px-4 sm:px-6 bg-ink-900/30">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <div className="text-center mb-16">
+              <span className="section-label">Right Now</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                What I&apos;m <span className="text-gradient">Working On</span>
+              </h2>
+              <p className="text-sand-400 max-w-lg mx-auto">Current projects and pursuits</p>
+            </div>
+          </FadeIn>
+
+          <div className="space-y-6">
+            {CURRENT_WORK.map((item, i) => (
+              <FadeIn key={item.title} delay={i * 150}>
+                <div className="card flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8 group">
+                  {/* Image placeholder per work item */}
+                  <div className="shrink-0 w-full sm:w-48 h-40 sm:h-32 bg-gradient-to-br from-ink-700 to-ink-600 rounded-xl flex items-center justify-center overflow-hidden">
+                    {/*
+                      📸 REPLACE with actual image per item:
+                      i===0 -> /public/work-youth.jpg
+                      i===1 -> /public/work-fashion.jpg
+                      i===2 -> /public/work-chess.jpg
+                    */}
+                    <div className="text-center px-4">
+                      <span className="text-2xl">{item.flag}</span>
+                      <p className="text-sand-500 text-[10px] mt-1">📸 Add photo</p>
                     </div>
-                    <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                    <p className="text-gray-400 leading-relaxed">{item.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
+                  </div>
 
-        {/* Skills & Interests */}
-        <section id="skills" className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="text-center mb-16">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">Skills & Interests</h2>
-                <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-4" />
-              </motion.div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-brand-400 transition-colors">{item.title}</h3>
+                    <p className="text-sand-400 leading-relaxed">{item.desc}</p>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  {
-                    icon: <Crown className="w-6 h-6" />,
-                    title: "Community Leadership",
-                    description: "Youth mentorship, public speaking, event coordination, and faith-based community engagement."
-                  },
-                  {
-                    icon: <TrendingUp className="w-6 h-6" />,
-                    title: "Fashion Trend Analysis",
-                    description: "Following and interpreting developments in modern fashion, visual aesthetics, and style culture."
-                  },
-                  {
-                    icon: <Gamepad2 className="w-6 h-6" />,
-                    title: "Chess & Critical Thinking",
-                    description: "Strategic decision-making through competitive chess and tactical analysis."
-                  },
-                  {
-                    icon: <Heart className="w-6 h-6" />,
-                    title: "Digital Finance",
-                    description: "Exploring digital financial tools, mobile-based investments, and emerging fintech technologies."
-                  }
-                ].map((skill, index) => (
-                  <motion.div
-                    key={index}
-                    variants={fadeInUp}
-                    className="glass rounded-xl p-6 hover-lift text-center group"
-                  >
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-500/20 text-primary-400 mb-4 group-hover:scale-110 transition-transform">
-                      {skill.icon}
+                  <div className="shrink-0 hidden sm:block">
+                    <div className="w-10 h-10 rounded-full bg-ink-700 flex items-center justify-center group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-all">
+                      <ArrowRight size={18} />
                     </div>
-                    <h3 className="font-bold mb-2">{skill.title}</h3>
-                    <p className="text-sm text-gray-400">{skill.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Currently Working On */}
-        <section id="current" className="py-20 px-4 bg-dark-800/50">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">What I&apos;m Currently Working On</h2>
-                <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-4" />
-              </motion.div>
+      {/* ═══════════════════════════════════════════
+          CONTACT SECTION
+      ═══════════════════════════════════════════ */}
+      <section id="contact" className="py-20 sm:py-28 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <div className="text-center mb-16">
+              <span className="section-label">Let&apos;s Connect</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                Get in <span className="text-gradient">Touch</span>
+              </h2>
+              <p className="text-sand-400 max-w-lg mx-auto">Have a question or want to collaborate? Send me a message.</p>
+            </div>
+          </FadeIn>
 
+          <div className="grid lg:grid-cols-5 gap-10 lg:gap-16">
+            {/* Left: Contact info */}
+            <FadeIn className="lg:col-span-2">
               <div className="space-y-6">
-                {[
-                  {
-                    flag: "🇺🇬",
-                    title: "Youth Fellowship Programs",
-                    description: "Supporting youth fellowship programs, mentorship initiatives, and community engagement activities at St. Andrew's Church, Komamboga."
-                  },
-                  {
-                    flag: "🧥",
-                    title: "Fashion Documentation",
-                    description: "Following seasonal fashion developments and documenting notable trends within local and international fashion communities."
-                  },
-                  {
-                    flag: "♟️",
-                    title: "Advanced Chess Strategy",
-                    description: "Expanding my knowledge of advanced chess concepts and strategic gameplay techniques."
-                  }
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    variants={fadeInUp}
-                    className="glass rounded-xl p-6 flex items-start gap-4 hover-lift"
-                  >
-                    <span className="text-3xl">{item.flag}</span>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                      <p className="text-gray-400">{item.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                <div className="card">
+                  <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-400 mb-4">
+                    <Mail size={20} />
+                  </div>
+                  <p className="text-xs text-sand-500 uppercase tracking-wider mb-1">Email</p>
+                  <a href={`mailto:${content.email}`} className="text-lg font-medium hover:text-brand-400 transition-colors">
+                    {content.email}
+                  </a>
+                </div>
+
+                <div className="card">
+                  <div className="w-10 h-10 rounded-lg bg-accent-500/10 flex items-center justify-center text-accent-400 mb-4">
+                    <MapPin size={20} />
+                  </div>
+                  <p className="text-xs text-sand-500 uppercase tracking-wider mb-1">Location</p>
+                  <p className="text-lg font-medium">{content.location}</p>
+                </div>
+
+                <div className="card">
+                  <h3 className="font-bold mb-2">Connect With Me</h3>
+                  <p className="text-sand-400 text-sm leading-relaxed">
+                    I&apos;m always open to discussing youth ministry, strategic initiatives, fashion trends, or just having a meaningful conversation.
+                  </p>
+                </div>
               </div>
-            </motion.div>
-          </div>
-        </section>
+            </FadeIn>
 
-        {/* Contact Section */}
-        <section id="contact" className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">Get in Touch</h2>
-                <div className="w-20 h-1 bg-primary-500 mx-auto rounded-full mb-4" />
-                <p className="text-gray-400">Have a question or want to collaborate? Send me a message.</p>
-              </motion.div>
+            {/* Right: Form */}
+            <FadeIn delay={150} className="lg:col-span-3">
+              <form onSubmit={handleSubmit} className="card space-y-5">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-sand-300 mb-2">Your Name</label>
+                  <input
+                    id="name" type="text" required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="input-field"
+                    placeholder="John Doe"
+                  />
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <motion.div variants={fadeInUp} className="space-y-6">
-                  <div className="glass rounded-xl p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Email</p>
-                      <a href={`mailto:${content.email}`} className="text-lg hover:text-primary-400 transition-colors">
-                        {content.email}
-                      </a>
-                    </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-sand-300 mb-2">Your Email</label>
+                  <input
+                    id="email" type="email" required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="input-field"
+                    placeholder="john@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-sand-300 mb-2">Message</label>
+                  <textarea
+                    id="message" required rows={5}
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    className="input-field resize-none"
+                    placeholder="Your message here..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="btn-primary w-full justify-center disabled:opacity-50 flex items-center gap-2"
+                >
+                  {submitting ? (
+                    <><Loader2 size={18} className="animate-spin" /> Sending...</>
+                  ) : (
+                    <><Send size={18} /> Send Message</>
+                  )}
+                </button>
+
+                {submitStatus === "success" && (
+                  <div className="flex items-center gap-2 text-green-400 text-sm p-3 bg-green-500/10 rounded-lg">
+                    <CheckCircle size={16} />
+                    Message sent successfully! I&apos;ll get back to you soon.
                   </div>
-
-                  <div className="glass rounded-xl p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
-                      <MapPin className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Location</p>
-                      <p className="text-lg">{content.location}</p>
-                    </div>
+                )}
+                {submitStatus === "error" && (
+                  <div className="flex items-center gap-2 text-red-400 text-sm p-3 bg-red-500/10 rounded-lg">
+                    <AlertCircle size={16} />
+                    Something went wrong. Please try again later.
                   </div>
-
-                  <div className="glass rounded-xl p-6">
-                    <h3 className="font-bold mb-3">Connect With Me</h3>
-                    <p className="text-gray-400 text-sm">
-                      I&apos;m always open to discussing youth ministry, strategic initiatives, 
-                      fashion trends, or just having a meaningful conversation.
-                    </p>
-                  </div>
-                </motion.div>
-
-                <motion.div variants={fadeInUp}>
-                  <form onSubmit={handleSubmit} className="glass rounded-xl p-6 space-y-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                        Your Name
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        required
-                        value={formState.name}
-                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500"
-                        placeholder="John Doe"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                        Your Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        required
-                        value={formState.email}
-                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        id="message"
-                        required
-                        rows={5}
-                        value={formState.message}
-                        onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                        className="w-full px-4 py-3 bg-dark-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-white placeholder-gray-500 resize-none"
-                        placeholder="Your message here..."
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-800 disabled:cursor-not-allowed rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-primary-500/25"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          Send Message
-                        </>
-                      )}
-                    </button>
-
-                    {submitStatus === "success" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-green-400 text-sm"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Message sent successfully! I&apos;ll get back to you soon.
-                      </motion.div>
-                    )}
-
-                    {submitStatus === "error" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-red-400 text-sm"
-                      >
-                        Something went wrong. Please try again later.
-                      </motion.div>
-                    )}
-                  </form>
-                </motion.div>
-              </div>
-            </motion.div>
+                )}
+              </form>
+            </FadeIn>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="py-8 px-4 border-t border-white/5">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} {content.heroTitle}. All rights reserved.
-            </p>
-            <p className="text-gray-600 text-sm">
-              Built with purpose and passion 🇺🇬
-            </p>
-          </div>
-        </footer>
-      </div>
+      {/* ═══════════════════════════════════════════
+          FOOTER
+      ═══════════════════════════════════════════ */}
+      <footer className="py-8 px-4 sm:px-6 border-t border-ink-800/50">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sand-500 text-sm">
+            © {new Date().getFullYear()} {content.heroTitle}. All rights reserved.
+          </p>
+          <p className="text-sand-600 text-sm">
+            Built with purpose and passion 💪🏿🇺🇬
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
