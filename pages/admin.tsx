@@ -222,6 +222,7 @@ export default function Admin() {
     setVisibility((p) => ({ ...p, [field]: !p[field] }));
   };
 
+  // CHANGED: Now uploads to Vercel Blob instead of converting to base64
   const handleImageUpload = async (key: keyof SiteImages, file: File) => {
     if (file.size > 5 * 1024 * 1024) {
       setStatus("error");
@@ -246,7 +247,7 @@ export default function Admin() {
         setMsg(`${IMAGE_SLOTS.find((s) => s.key === key)?.label} uploaded! Click Save to store it.`);
       } else {
         setStatus("error");
-        setMsg("Upload failed");
+        setMsg(data.error || "Upload failed");
       }
     } catch {
       setStatus("error");
