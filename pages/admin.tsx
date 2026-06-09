@@ -501,4 +501,3 @@ export default function Admin() {
     </div>
   );
 }
-e
