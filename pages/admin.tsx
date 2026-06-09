@@ -56,14 +56,14 @@ export default function Admin() {
   const [passcode, setPasscode] = useState("");
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<<"idle" | "success" | "error">("idle");
   const [msg, setMsg] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [activeTab, setActiveTab] = useState<"content" | "images" | "settings">("content");
+  const [activeTab, setActiveTab] = useState<<"content" | "images" | "settings">("content");
 
-  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
-  const [visibility, setVisibility] = useState<Visibility>(DEFAULT_VISIBILITY);
-  const [images, setImages] = useState<SiteImages>({});
+  const [content, setContent] = useState<<SiteContent>(DEFAULT_CONTENT);
+  const [visibility, setVisibility] = useState<<Visibility>(DEFAULT_VISIBILITY);
+  const [images, setImages] = useState<<SiteImages>({});
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
@@ -222,20 +222,38 @@ export default function Admin() {
     setVisibility((p) => ({ ...p, [field]: !p[field] }));
   };
 
-  const handleImageUpload = (key: keyof SiteImages, file: File) => {
-    if (file.size > 2 * 1024 * 1024) {
+  const handleImageUpload = async (key: keyof SiteImages, file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
       setStatus("error");
-      setMsg("Image must be under 2MB");
+      setMsg("Image must be under 5MB");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setImages((p) => ({ ...p, [key]: result }));
-      setStatus("success");
-      setMsg(`${IMAGE_SLOTS.find((s) => s.key === key)?.label} uploaded! Click Save to store it.`);
-    };
-    reader.readAsDataURL(file);
+
+    setLoading(true);
+    setStatus("idle");
+
+    try {
+      const filename = `${key}-${Date.now()}-${file.name}`;
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, {
+        method: "POST",
+        body: file,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setImages((p) => ({ ...p, [key]: data.url }));
+        setStatus("success");
+        setMsg(`${IMAGE_SLOTS.find((s) => s.key === key)?.label} uploaded! Click Save to store it.`);
+      } else {
+        setStatus("error");
+        setMsg("Upload failed");
+      }
+    } catch {
+      setStatus("error");
+      setMsg("Connection error during upload");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeImage = (key: keyof SiteImages) => {
@@ -288,7 +306,6 @@ export default function Admin() {
               </button>
             </form>
 
-            {/* Return to site link */}
             <div className="mt-6 pt-6 border-t border-ink-700/50 text-center">
               <a href="/" className="inline-flex items-center gap-2 text-sm text-sand-500 hover:text-brand-400 transition-colors">
                 <ArrowLeft size={16} /> Return to website
@@ -305,7 +322,6 @@ export default function Admin() {
     <div className="min-h-screen bg-ink-950 text-sand-100">
       <Head><title>Admin Dashboard | Lumuli Andrew</title><meta name="robots" content="noindex, nofollow" /></Head>
       <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold">Admin Dashboard</h1>
@@ -321,7 +337,6 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Status */}
         {status === "success" && (
           <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
             <CheckCircle size={18} /> {msg}
@@ -333,7 +348,6 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {(["content", "images", "settings"] as const).map((tab) => (
             <button
@@ -389,7 +403,7 @@ export default function Admin() {
           <div className="space-y-5">
             <div className="card mb-4">
               <p className="text-sm text-sand-400">
-                Upload images directly from your phone. Images are stored as base64 in Redis. Maximum 2MB per image. For best results, use JPG or WebP format.
+                Upload images directly from your phone. Images are stored on Vercel Blob (up to 5MB each). For best results, use JPG or WebP format.
               </p>
             </div>
 
@@ -451,7 +465,7 @@ export default function Admin() {
               <p className="text-sm text-sand-400 mb-6">Toggle sections on or off. Hidden sections will not appear on the site.</p>
 
               <div className="space-y-4">
-                {(Object.keys(visibility) as Array<keyof Visibility>).map((key) => (
+                {(Object.keys(visibility) as Array<<keyof Visibility>).map((key) => (
                   <div key={key} className="flex items-center justify-between py-3 border-b border-ink-700/30 last:border-0">
                     <div>
                       <p className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</p>
