@@ -193,9 +193,55 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-ink-950 text-sand-100 overflow-x-hidden">
       <Head>
-        <title>{content.heroTitle} | Youth Leader & Strategic Thinker</title>
-        <meta name="description" content={`Personal website of ${content.heroTitle} — Youth leader, strategic thinker, and fashion enthusiast based in Uganda.`} />
-      </Head>
+  {/* Primary */}
+  <title>Lumuli Andrew | Youth Leader, Strategic Thinker & Fashion Enthusiast</title>
+  <meta name="description" content="Lumuli Andrew is a youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda. Passionate about faith-centered service, youth empowerment, and personal development." />
+  <meta name="keywords" content="Lumuli Andrew, Uganda youth leader, Kampala, St Andrews Church Komamboga, youth empowerment, fashion Uganda, chess Uganda, strategic thinking" />
+  <meta name="author" content="Lumuli Andrew" />
+  <link rel="canonical" href="https://andrewlumuli.site" />
+  <link rel="icon" type="image/jpeg" href="/profile/Lumuli_Andrew.jpg" />
+
+  {/* Open Graph — controls how the link looks when shared on WhatsApp, Facebook, etc. */}
+  <meta property="og:type" content="profile" />
+  <meta property="og:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
+  <meta property="og:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
+  <meta property="og:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://andrewlumuli.site" />
+  <meta property="og:site_name" content="Lumuli Andrew" />
+  <meta property="profile:first_name" content="Andrew" />
+  <meta property="profile:last_name" content="Lumuli" />
+
+  {/* Twitter/X card — also used by Google for image previews */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
+  <meta name="twitter:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
+  <meta name="twitter:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
+
+  {/* Structured data — this is what puts your name/photo in Google's knowledge panel */}
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Lumuli Andrew",
+        "jobTitle": "Youth Leader & Strategic Thinker",
+        "description": "Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda.",
+        "url": "https://andrewlumuli.site",
+        "image": "https://andrewlumuli.site/profile/Lumuli_Andrew.jpg",
+        "email": "andrewlumuli8@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Kampala",
+          "addressCountry": "UG"
+        },
+        "sameAs": []
+      })
+    }}
+  />
+</Head>
 
       {/* ═══ NAVIGATION ═══ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-ink-950/90 backdrop-blur-md border-b border-ink-800/50" : "bg-transparent"}`}>
