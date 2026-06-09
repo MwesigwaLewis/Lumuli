@@ -33,7 +33,7 @@ const DEFAULT_CONTENT: SiteContent = {
   heroTitle: "Lumuli Andrew",
   heroSubtitle: "A youth leader, strategic thinker, and fashion enthusiast passionate about faith-centered service, youth empowerment, and personal development.",
   aboutText: "I am a youth leader, strategic thinker, and fashion enthusiast based in Uganda. My journey is driven by a deep passion for faith-centered service, youth empowerment, personal development, and staying informed about evolving fashion trends and contemporary culture. I believe in the power of community, the importance of mentorship, and the impact of strategic thinking in solving real-world challenges. Whether it's leading youth programs, analyzing fashion trends, or playing chess, I approach every endeavor with dedication and purpose.",
-  email: "andrewlumuli@gmail.com",
+  email: "andrewlumuli8@gmail.com",
   location: "Kampala, Uganda",
 };
 
@@ -268,7 +268,11 @@ export default function Admin() {
   if (!auth) {
     return (
       <div className="min-h-screen bg-ink-950 flex items-center justify-center px-4">
-        <Head><title>Admin | Lumuli Andrew</title><meta name="robots" content="noindex, nofollow" /></Head>
+        <Head>
+  <title>Admin | Lumuli Andrew</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/jpeg" href="profile/Lumuli_Andrew.jpg" />
+</Head>
         <div className="w-full max-w-md animate-fade-up">
           <div className="card">
             <div className="text-center mb-8">
@@ -497,3 +501,4 @@ export default function Admin() {
     </div>
   );
 }
+e
