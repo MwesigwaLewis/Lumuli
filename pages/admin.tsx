@@ -56,14 +56,14 @@ export default function Admin() {
   const [passcode, setPasscode] = useState("");
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [msg, setMsg] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [activeTab, setActiveTab] = useState<<"content" | "images" | "settings">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "images" | "settings">("content");
 
-  const [content, setContent] = useState<<SiteContent>(DEFAULT_CONTENT);
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [visibility, setVisibility] = useState<<Visibility>(DEFAULT_VISIBILITY);
-  const [images, setImages] = useState<<SiteImages>({});
+  const [images, setImages] = useState<SiteImages>({});
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
@@ -465,7 +465,7 @@ export default function Admin() {
               <p className="text-sm text-sand-400 mb-6">Toggle sections on or off. Hidden sections will not appear on the site.</p>
 
               <div className="space-y-4">
-                {(Object.keys(visibility) as Array<<keyof Visibility>).map((key) => (
+                {(Object.keys(visibility) as Array<keyof Visibility>).map((key) => (
                   <div key={key} className="flex items-center justify-between py-3 border-b border-ink-700/30 last:border-0">
                     <div>
                       <p className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</p>
