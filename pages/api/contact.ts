@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Message must be between 10 and 5000 characters" });
     }
 
-    const recipient = process.env.CONTACT_EMAIL || "andrewlumuli@gmail.com";
+    const recipient = process.env.CONTACT_EMAIL || "andrewlumuli8@gmail.com";
     const bccList = process.env.BCC_EMAIL ? [process.env.BCC_EMAIL] : undefined;
 
     const { data, error } = await resend.emails.send({
