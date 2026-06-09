@@ -193,55 +193,55 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-ink-950 text-sand-100 overflow-x-hidden">
       <Head>
-  {/* Primary */}
-  <title>Lumuli Andrew | Youth Leader, Strategic Thinker & Fashion Enthusiast</title>
-  <meta name="description" content="Lumuli Andrew is a youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda. Passionate about faith-centered service, youth empowerment, and personal development." />
-  <meta name="keywords" content="Lumuli Andrew, Uganda youth leader, Kampala, St Andrews Church Komamboga, youth empowerment, fashion Uganda, chess Uganda, strategic thinking" />
-  <meta name="author" content="Lumuli Andrew" />
-  <link rel="canonical" href="https://andrewlumuli.site" />
-  <link rel="icon" type="image/jpeg" href="/profile/Lumuli_Andrew.jpg" />
+        {/* Primary */}
+        <title>Lumuli Andrew | Youth Leader, Strategic Thinker & Fashion Enthusiast</title>
+        <meta name="description" content="Lumuli Andrew is a youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda. Passionate about faith-centered service, youth empowerment, and personal development." />
+        <meta name="keywords" content="Lumuli Andrew, Uganda youth leader, Kampala, St Andrews Church Komamboga, youth empowerment, fashion Uganda, chess Uganda, strategic thinking" />
+        <meta name="author" content="Lumuli Andrew" />
+        <link rel="canonical" href="https://andrewlumuli.site" />
+        <link rel="icon" type="image/jpeg" href="/profile/Lumuli_Andrew.jpg" />
 
-  {/* Open Graph — controls how the link looks when shared on WhatsApp, Facebook, etc. */}
-  <meta property="og:type" content="profile" />
-  <meta property="og:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
-  <meta property="og:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
-  <meta property="og:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://andrewlumuli.site" />
-  <meta property="og:site_name" content="Lumuli Andrew" />
-  <meta property="profile:first_name" content="Andrew" />
-  <meta property="profile:last_name" content="Lumuli" />
+        {/* Open Graph */}
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
+        <meta property="og:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
+        <meta property="og:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content="https://andrewlumuli.site" />
+        <meta property="og:site_name" content="Lumuli Andrew" />
+        <meta property="profile:first_name" content="Andrew" />
+        <meta property="profile:last_name" content="Lumuli" />
 
-  {/* Twitter/X card — also used by Google for image previews */}
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
-  <meta name="twitter:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
-  <meta name="twitter:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
+        {/* Twitter/X card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Lumuli Andrew | Youth Leader & Strategic Thinker" />
+        <meta name="twitter:description" content="Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda." />
+        <meta name="twitter:image" content="https://andrewlumuli.site/profile/Lumuli_Andrew.jpg" />
 
-  {/* Structured data — this is what puts your name/photo in Google's knowledge panel */}
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Lumuli Andrew",
-        "jobTitle": "Youth Leader & Strategic Thinker",
-        "description": "Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda.",
-        "url": "https://andrewlumuli.site",
-        "image": "https://andrewlumuli.site/profile/Lumuli_Andrew.jpg",
-        "email": "andrewlumuli8@gmail.com",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Kampala",
-          "addressCountry": "UG"
-        },
-        "sameAs": []
-      })
-    }}
-  />
-</Head>
+        {/* Structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Lumuli Andrew",
+              "jobTitle": "Youth Leader & Strategic Thinker",
+              "description": "Youth leader, strategic thinker, and fashion enthusiast based in Kampala, Uganda.",
+              "url": "https://andrewlumuli.site",
+              "image": "https://andrewlumuli.site/profile/Lumuli_Andrew.jpg",
+              "email": "andrewlumuli8@gmail.com",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Kampala",
+                "addressCountry": "UG"
+              },
+              "sameAs": []
+            })
+          }}
+        />
+      </Head>
 
       {/* ═══ NAVIGATION ═══ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-ink-950/90 backdrop-blur-md border-b border-ink-800/50" : "bg-transparent"}`}>
@@ -307,7 +307,7 @@ export default function Home() {
                 {images.heroPortrait ? (
                   <img
                     src={images.heroPortrait}
-                    alt={`${content.heroTitle} portrait`}
+                    alt="Lumuli Andrew - Youth Leader and Strategic Thinker, Kampala Uganda"
                     className="relative w-72 h-96 sm:w-80 sm:h-[28rem] object-cover rounded-3xl border border-ink-700/50 shadow-2xl"
                   />
                 ) : (
@@ -341,7 +341,7 @@ export default function Home() {
                 {images.aboutPhoto ? (
                   <img
                     src={images.aboutPhoto}
-                    alt={content.heroTitle}
+                    alt="Lumuli Andrew - Youth Leader based in Kampala Uganda"
                     className="relative w-full aspect-[4/5] object-cover rounded-2xl border border-ink-700/50"
                   />
                 ) : (
@@ -466,7 +466,11 @@ export default function Home() {
                     <Link href={`/work/${item.slug}/`} className="card flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8 group cursor-pointer">
                       <div className="shrink-0 w-full sm:w-48 h-40 sm:h-32 bg-gradient-to-br from-ink-700 to-ink-600 rounded-xl flex items-center justify-center overflow-hidden">
                         {img ? (
-                          <img src={img} alt={item.title} className="w-full h-full object-cover" />
+                          <img
+                            src={img}
+                            alt={`Lumuli Andrew - ${item.title}`}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <div className="text-center px-4">
                             <span className="text-2xl">{item.flag}</span>
@@ -558,7 +562,7 @@ export default function Home() {
                   </div>
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-sand-300 mb-2">Message</label>
-                    <textarea id="message" required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="input-field resize-none" placeholder="Message e.g...Contact Mwesigwa Lewis at mwesigwalewis.centralhub.space for professional websites..." />
+                    <textarea id="message" required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="input-field resize-none" placeholder="Email mwesigwalewis@centralhub.space for professional websites..." />
                   </div>
                   <button type="submit" disabled={submitting} className="btn-primary w-full justify-center disabled:opacity-50 flex items-center gap-2">
                     {submitting ? (
