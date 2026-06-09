@@ -62,7 +62,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<"content" | "images" | "settings">("content");
 
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
-  const [visibility, setVisibility] = useState<<Visibility>(DEFAULT_VISIBILITY);
+  const [visibility, setVisibility] = useState<Visibility>(DEFAULT_VISIBILITY);
   const [images, setImages] = useState<SiteImages>({});
   const [dirty, setDirty] = useState(false);
 
