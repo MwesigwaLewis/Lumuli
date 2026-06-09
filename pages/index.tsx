@@ -558,7 +558,7 @@ export default function Home() {
                   </div>
                   <div>
                     <label htmlFor="whatsapp" className="block text-sm font-medium text-sand-300 mb-2">WhatsApp Number <span className="text-sand-500 font-normal">(optional)</span></label>
-                    <input id="whatsapp" type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="input-field" placeholder="+256 7XX XXX XXX" />
+                    <input id="whatsapp" type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="input-field" placeholder="+256 761299733" />
                   </div>
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-sand-300 mb-2">Message</label>
