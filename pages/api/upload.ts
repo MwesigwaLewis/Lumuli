@@ -3,7 +3,7 @@ import { put } from "@vercel/blob";
 
 export const config = {
   api: {
-    bodyParser: false, // Required for blob streaming
+    bodyParser: false,
   },
 };
 
@@ -16,7 +16,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { searchParams } = new URL(req.url!, `http://${req.headers.host}`);
     const filename = searchParams.get("filename") || `image-${Date.now()}.jpg`;
     
-    // Upload directly to Vercel Blob
     const blob = await put(filename, req, {
       access: "public",
       token: process.env.BLOB_READ_WRITE_TOKEN,
